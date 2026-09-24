@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · TypeQuest{% endblock %}
+
+{% block content %}
+<script>
+window.TQ_DASH = {
+    wpm: {{ chart_wpm|tojson }},
+    acc: {{ chart_acc|tojson }}
+};
+</script>
+
+<div class="container dash-shell">
+    <div class="dash-head">
+        <div>
+            <h1 class="dash-greeting">Hey, <span class="gradient">{{ user.username }}</span> 👋</h1>
+            <p class="dash-sub">Here's your typing journey so far.</p>
+        </div>
+        <div class="rank-badge card">
+            <span class="rank-badge-level">Lv {{ user.level }}</span>
+            <span class="rank-badge-name">{{ user.level_name }}</span>
+        </div>
+    </div>
+
+    <div class="dash-summary">
+        <div class="stat-card card">
+            <span class="stat-card-icon" style="--ic:#6366f1">🏅</span>
+            <div class="stat-card-body">
+                <span class="stat-card-value">{{ user.level }} · {{ user.level_name }}</span>
+                <span class="stat-card-label">Current rank</span>
+            </div>
+        </div>
+        <div class="stat-card card">
+            <span class="stat-card-icon" style="--ic:#f59e0b">✨</span>
+            <div class="stat-card-body">
+                <span class="stat-card-value">{{ user.xp }} <small>XP</small></span>
+                <span class="stat-card-label">Total experience</span>
+            </div>
+        </div>
+        <div class="stat-card card">
+            <span class="stat-card-icon" style="--ic:#22c55e">🚀</span>
+            <div class="stat-card-body">
+                <span class="stat-card-value">{{ user.best_wpm()|round|int }} <small>WPM</small></span>
+                <span class="stat-card-label">Best speed</span>
+            </div>
+        </div>
+        <div class="stat-card card">
+            <span class="stat-card-icon" style="--ic:#0ea5e9">📈</span>
+            <div class="stat-card-body">
+                <span class="stat-card-value">{{ user.avg_wpm()|round|int }} <small>WPM</small></span>
+                <span class="stat-card-label">Average speed</span>
+            </div>
+        </div>
+        <div class="stat-card card">
+            <span class="stat-card-icon" style="--ic:#ec4899">🎯</span>
+            <div class="stat-card-body">
+                <span class="stat-card-value">{{ user.avg_accuracy()|round(1) }}<small>%</small></span>
+                <span class="stat-card-label">Average accuracy</span>
+            </div>
+        </div>
+        <div class="stat-card card">
+            <span class="stat-card-icon" style="--ic:#8b5cf6">📚</span>
+            <div class="stat-card-body">
+                <span class="stat-card-value">{{ user.test_count() }}</span>
+                <span class="stat-card-label">Tests completed</span>
+            </div>
+        </div>
+        <div class="stat-card card">
+            <span class="stat-card-icon" style="--ic:#ef4444">🔥</span>
+            <div class="stat-card-body">
+                <span class="stat-card-value">{{ user.streak }} <small>day</small></span>
+                <span class="stat-card-label">Current streak</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="level-progress card">
+        <div class="level-progress-head">
+            <div>
+                <h3>Path to {{ user.next_level_name }}</h3>
+                <p>{{ user.xp }} XP earned · {{ user.xp_to_next_level }} XP to go</p>
+            </div>
+            <span class="level-progress-pct">{{ user.level_progress|round|int }}%</span>
+        </div>
+        <div class="level-progress-bar"><div class="level-progress-fill" style="width: {{ user.level_progress }}%"></div></div>
+    </div>
+
+    <div class="dash-grid-2">
+        <div class="card chart-card">
+            <div class="chart-head">
+                <h3>WPM trend</h3>
+                <span class="chart-sub">Last {{ chart_wpm|length }} runs</span>
+            </div>
+            {% if chart_wpm %}
+            <canvas id="wpm-chart" height="180"></canvas>
+            {% else %}
+            <p class="chart-empty">No tests yet — <a href="{{ url_for('main.play') }}">take your first one!</a></p>
+            {% endif %}
+        </div>
+        <div class="card chart-card">
+            <div class="chart-head">
+                <h3>Accuracy trend</h3>
+                <span class="chart-sub">Last {{ chart_acc|length }} runs</span>
+            </div>
+            {% if chart_acc %}
+            <canvas id="acc-chart" height="180"></canvas>
+            {% else %}
+            <p class="chart-empty">Your accuracy will appear here after your first test.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="dash-grid-2">
+        <div class="card daily-card" {% if daily_done %}data-done="true"{% endif %}>
+            <div class="daily-head">
+                <span class="daily-icon">📅</span>
+                <div>
+                    <h3>Daily Challenge</h3>
+                    <p>{% if daily_done %}Completed today. Come back tomorrow for another <b>+{{ daily_bonus }} XP</b>.{% else %}A fresh prompt is ready — finish it for a <b>+{{ daily_bonus }} XP</b> bonus.{% endif %}</p>
+                </div>
+            </div>
+            <div class="daily-actions">
+                <a class="btn btn-primary {% if daily_done %}btn-disabled{% endif %}" href="{{ url_for('main.play', mode='Daily Challenge') }}">{{ 'Completed ✓' if daily_done else 'Start Challenge' }}</a>
+            </div>
+        </div>
+
+        <div class="card leaderboard-card">
+            <div class="chart-head">
+                <h3>🏆 Weekly leaderboard</h3>
+                <span class="chart-sub">Last 7 days · XP</span>
+            </div>
+            {% if weekly %}
+            <ol class="leaderboard-list">
+                {% for row in weekly %}
+                <li class="leaderboard-row {% if row.username == user.username %}is-me{% endif %}">
+                    <span class="lb-medal">{{ ["🥇","🥈","🥉"][loop.index0] if loop.index <= 3 else loop.index }}</span>
+                    <span class="lb-name">{{ row.username }}{% if row.username == user.username %} <em>(you)</em>{% endif %}</span>
+                    <span class="lb-xp"><strong>{{ row.xp }}</strong> XP</span>
+                </li>
+                {% endfor %}
+            </ol>
+            {% else %}
+            <p class="chart-empty">No activity this week yet. Be the first on the board!</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="card achievements-card">
+        <div class="chart-head">
+            <h3>🎖️ Achievements</h3>
+            <span class="chart-sub">{{ unlocked_ids|length }} / {{ achievements|length }} unlocked</span>
+        </div>
+        <div class="achievement-grid">
+            {% for ach in achievements %}
+            {% set unlocked = ach.id in unlocked_ids %}
+            <div class="achievement-item {% if not unlocked %}locked{% endif %}" title="{{ ach.description }}">
+                <span class="ach-icon">{{ ach.icon }}</span>
+                <div class="ach-text">
+                    <strong>{{ ach.name }}</strong>
+                    <span>{{ ach.description }}</span>
+                </div>
+                {% if unlocked %}<span class="ach-check">✓</span>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card recent-card">
+        <div class="chart-head">
+            <h3>Recent tests</h3>
+            {% if recent %}
+            <a class="text-link" href="{{ url_for('main.play') }}">Take another →</a>
+            {% endif %}
+        </div>
+        {% if recent %}
+        <div class="table-wrap">
+            <table class="recent-table">
+                <thead>
+                    <tr><th>Mode</th><th>Category</th><th>WPM</th><th>Accuracy</th><th>Errors</th><th>XP</th><th>Date</th></tr>
+                </thead>
+                <tbody>
+                    {% for t in recent %}
+                    <tr>
+                        <td>
+                            <span class="mode-tag">{{ t.mode }}</span>
+                            {% if not t.completed %}<span class="mode-incomplete">incomplete</span>{% endif %}
+                        </td>
+                        <td>{{ t.category }}</td>
+                        <td><strong>{{ t.wpm|round(1) }}</strong></td>
+                        <td class="{% if t.accuracy >= 98 %}acc-good{% elif t.accuracy >= 90 %}acc-ok{% else %}acc-bad{% endif %}">{{ t.accuracy|round(1) }}%</td>
+                        <td>{{ t.errors }}</td>
+                        <td>+{{ t.xp_earned }}</td>
+                        <td class="date-cell">{{ t.created_at.strftime('%b %d, %Y') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <p class="chart-empty">No tests yet. <a href="{{ url_for('main.play') }}">Start typing</a> and your results will show up here.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock content %}

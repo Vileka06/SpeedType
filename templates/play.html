@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Play · TypeQuest{% endblock %}
+{% block main_class %}play-page{% endblock %}
+
+{% block content %}
+<script>window.TQ = {{ game_config|tojson }};</script>
+
+<div class="container play-shell">
+    {% if not current_user.is_authenticated %}
+    <div class="guest-note card">
+        <span>👋</span>
+        <p><strong>Guest mode.</strong> You can play freely, but sign in to save results, earn <b>XP</b>, and unlock levels. <a href="{{ url_for('auth.register') }}">Create a free account</a> or <a href="{{ url_for('auth.login') }}">log in</a>.</p>
+    </div>
+    {% endif %}
+
+    <div class="setup card">
+        <div class="setup-group" id="level-group">
+            <span class="setup-label">Level</span>
+            <div class="chips" id="level-chips" role="group" aria-label="Choose level"></div>
+        </div>
+        <div class="setup-group" id="mode-group">
+            <span class="setup-label">Mode</span>
+            <div class="chips" id="mode-chips" role="group" aria-label="Choose mode"></div>
+        </div>
+        <div class="setup-group" id="category-group">
+            <span class="setup-label">Category</span>
+            <div class="chips" id="category-chips" role="group" aria-label="Choose category"></div>
+        </div>
+    </div>
+
+    <div class="stats-bar card" aria-live="polite">
+        <div class="stat-pill"><span class="stat-key">Time</span><span class="stat-val" id="stat-time">0.0s</span></div>
+        <div class="stat-pill"><span class="stat-key">WPM</span><span class="stat-val" id="stat-wpm">0</span></div>
+        <div class="stat-pill"><span class="stat-key">Accuracy</span><span class="stat-val" id="stat-acc">100%</span></div>
+        <div class="stat-pill stat-pill-danger"><span class="stat-key">Errors</span><span class="stat-val" id="stat-err">0</span></div>
+        <div class="stat-pill stat-pill-extra hide" id="stat-lives-pill"><span class="stat-key" id="stat-lives-key">Lives</span><span class="stat-val" id="stat-lives">❤️❤️❤️❤️❤️</span></div>
+        <div class="stat-pill stat-progress"><span class="stat-key">Progress</span><div class="progress-mini"><div class="progress-mini-fill" id="stat-progress"></div></div></div>
+    </div>
+
+    <div class="text-surface card" id="text-surface">
+        <div class="text-viewport" id="text-viewport">
+            <div class="text-words" id="text-words" aria-label="Text to type"></div>
+        </div>
+        <div class="start-overlay" id="start-overlay">
+            <div class="start-blink">⌨</div>
+            <p class="start-title">Click the text or press any key to start</p>
+            <p class="start-hint" id="start-hint">Press <kbd>Tab</kbd> to restart · <kbd>Esc</kbd> to finish · <kbd>Backspace</kbd> to fix a typo</p>
+        </div>
+        <input id="ghost-input" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Hidden input for keyboard">
+    </div>
+
+    <div class="game-actions">
+        <button class="btn btn-outline" id="btn-restart" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Restart <span class="kbd-hint">Tab</span>
+        </button>
+        <button class="btn btn-primary" id="btn-finish" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            Finish <span class="kbd-hint">Esc</span>
+        </button>
+    </div>
+
+    <p class="new-record-tip" id="new-record-tip">⭐ New personal best!</p>
+</div>
+
+<div class="modal-overlay" id="result-modal" aria-hidden="true">
+    <div class="modal card" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-score" id="modal-score">
+            <span class="modal-score-label">WPM</span>
+            <span class="modal-score-value" id="modal-wpm">0</span>
+        </div>
+        <div class="modal-stats">
+            <div class="modal-stat"><span>Accuracy</span><strong id="modal-acc">0%</strong></div>
+            <div class="modal-stat"><span>Errors</span><strong id="modal-err">0</strong></div>
+            <div class="modal-stat"><span>Time</span><strong id="modal-time">0.0s</strong></div>
+            <div class="modal-stat"><span>Level</span><strong id="modal-level">Lv 1</strong></div>
+        </div>
+        <div class="modal-gamification" id="modal-gamification">
+            <div class="xp-gain" id="modal-xp">+0 XP</div>
+            <div class="streak-line" id="modal-streak"></div>
+            <div class="levelup-banner hide" id="modal-levelup">
+                <span class="levelup-emoji">🎉</span>
+                <div><strong>Level up!</strong><span id="modal-newrank"></span></div>
+            </div>
+            <div class="ach-list" id="modal-ach"></div>
+        </div>
+        <p class="login-nudge hide" id="modal-nudge">🔒 <a href="{{ url_for('auth.login') }}">Log in</a> or <a href="{{ url_for('auth.register') }}">sign up</a> to save this result and earn XP.</p>
+        <div class="modal-actions">
+            <button class="btn btn-primary" id="modal-play-again" type="button">Play again</button>
+            <a class="btn btn-outline" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+        </div>
+        <button class="modal-close" id="modal-close" aria-label="Close" type="button">✕</button>
+    </div>
+</div>
+
+<div class="toast-stack" id="toast-stack" aria-live="polite"></div>
+<canvas id="confetti-canvas" aria-hidden="true"></canvas>
+{% endblock content %}

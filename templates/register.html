@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Sign up · TypeQuest{% endblock %}
+{% block main_class %}auth-page{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <div class="auth-blob" aria-hidden="true"></div>
+    <div class="auth-card card reveal">
+        <div class="auth-head">
+            <span class="brand-mark brand-mark-lg">⚡</span>
+            <h1>Create your account</h1>
+            <p>Start earning XP and climbing the ranks.</p>
+        </div>
+        <form method="post" class="form" novalidate>
+            <label class="field">
+                <span>Username</span>
+                <input type="text" name="username" value="{{ values.username }}" placeholder="cosmic_typer" required minlength="3" maxlength="30" pattern="[A-Za-z0-9_.\-]{3,30}" autofocus autocomplete="username">
+            </label>
+            <label class="field">
+                <span>Email</span>
+                <input type="email" name="email" value="{{ values.email }}" placeholder="you@school.edu" required autocomplete="email">
+            </label>
+            <label class="field">
+                <span>Password</span>
+                <input type="password" name="password" placeholder="At least 6 characters" required minlength="6" autocomplete="new-password">
+            </label>
+            <label class="field">
+                <span>Confirm password</span>
+                <input type="password" name="confirm" placeholder="Repeat your password" required minlength="6" autocomplete="new-password">
+            </label>
+            <button type="submit" class="btn btn-primary btn-block">Create account</button>
+        </form>
+        <p class="auth-alt">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a></p>
+        <a class="auth-back" href="{{ url_for('main.index') }}">← Back to home</a>
+    </div>
+</div>
+{% endblock content %}

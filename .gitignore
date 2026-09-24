@@ -1,0 +1,9 @@
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+.DS_Store
+
+# App runtime data
+database/*.db

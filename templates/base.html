@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}TypeQuest – Gamified Typing Trainer{% endblock %}</title>
+    <meta name="description" content="TypeQuest – a gamified typing speed trainer for students. Master your typing and level up your skills.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+{% block theme_script %}
+<script>
+    (function () {
+        var saved = null;
+        try { saved = localStorage.getItem("tq-theme"); } catch (e) {}
+        var theme = saved || (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+        document.documentElement.setAttribute("data-theme", theme);
+    })();
+</script>
+{% endblock %}
+
+{% block nav %}
+<header class="nav">
+    <div class="nav-inner container">
+        <a class="brand" href="{{ url_for('main.index') }}">
+            <span class="brand-mark">⚡</span>
+            <span class="brand-name">Type<span class="brand-accent">Quest</span></span>
+        </a>
+        <nav class="nav-links" id="nav-links">
+            <a class="nav-link {% if request.endpoint == 'main.index' %}active{% endif %}" href="{{ url_for('main.index') }}">Home</a>
+            <a class="nav-link {% if request.endpoint == 'main.play' %}active{% endif %}" href="{{ url_for('main.play') }}">Play</a>
+            {% if current_user.is_authenticated %}
+            <a class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}" href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            {% endif %}
+        </nav>
+        <div class="nav-actions">
+            {% if current_user.is_authenticated %}
+            <span class="xp-pill" title="Your XP">
+                <span class="xp-icon">✨</span><span id="nav-xp" class="xp-value">{{ current_user.xp }}</span><span class="xp-suffix">XP</span>
+            </span>
+            {% endif %}
+            <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+                <svg class="icon-sun" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                <svg class="icon-moon" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+            {% if current_user.is_authenticated %}
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('main.dashboard') }}">{{ current_user.username }}</a>
+            <a class="btn btn-danger-ghost btn-sm" href="{{ url_for('auth.logout') }}">Logout</a>
+            {% else %}
+            <a class="btn btn-ghost btn-sm" href="{{ url_for('auth.login') }}">Log in</a>
+            <a class="btn btn-primary btn-sm" href="{{ url_for('auth.register') }}">Sign up</a>
+            {% endif %}
+            <button class="nav-burger" id="nav-burger" aria-label="Menu"><span></span><span></span><span></span></button>
+        </div>
+    </div>
+</header>
+{% endblock %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flash-stack container">
+    {% for category, message in messages %}
+    <div class="flash flash-{{ category }}" role="alert">{{ message }}<button class="flash-close" aria-label="Dismiss">✕</button></div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+<main class="{% block main_class %}page{% endblock %}">
+{% block content %}{% endblock %}
+</main>
+
+{% block footer %}
+<footer class="footer">
+    <div class="container footer-inner">
+        <div>
+            <a class="brand" href="{{ url_for('main.index') }}">
+                <span class="brand-mark">⚡</span>
+                <span class="brand-name">Type<span class="brand-accent">Quest</span></span>
+            </a>
+            <p class="footer-tagline">Master your typing. Level up your skills.</p>
+        </div>
+        <div class="footer-cols">
+            <div class="footer-col">
+                <h4>Explore</h4>
+                <a href="{{ url_for('main.index') }}">Home</a>
+                <a href="{{ url_for('main.play') }}">Typing Game</a>
+                <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            </div>
+            <div class="footer-col">
+                <h4>Modes</h4>
+                <span>Speed Run</span>
+                <span>Accuracy Mode</span>
+                <span>Time Attack</span>
+                <span>Survival Mode</span>
+            </div>
+            <div class="footer-col">
+                <h4>Game</h4>
+                <span>XP & Ranks</span>
+                <span>Achievements</span>
+                <span>Daily Streaks</span>
+                <span>Leaderboard</span>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom container">
+        <p>© {{ now_year }} TypeQuest. Built for students who love to level up.</p>
+    </div>
+</footer>
+{% endblock %}
+
+<script>window.TQ_THEME_INIT = true;</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

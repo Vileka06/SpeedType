@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% block title %}TypeQuest – Gamified Typing Speed Trainer for Students{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-blob hero-blob-1" aria-hidden="true"></div>
+    <div class="hero-blob hero-blob-2" aria-hidden="true"></div>
+    <div class="container hero-inner">
+        <div class="hero-badge reveal">
+            <span class="dot"></span>
+            Gamified typing trainer for students
+        </div>
+        <h1 class="hero-title reveal">Master Your Typing.<br><span class="gradient">Level Up Your Skills.</span></h1>
+        <p class="hero-sub reveal">TypeQuest turns typing practice into an adventure. Battle your way from Beginner to Legend across 7 categories, 4 game modes, and an ever-growing XP ladder.</p>
+        <div class="hero-actions reveal">
+            <a class="btn btn-primary btn-lg" href="{{ url_for('main.play') }}">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                Start Typing
+            </a>
+            {% if current_user.is_authenticated %}
+            <a class="btn btn-outline btn-lg" href="{{ url_for('main.dashboard') }}">View Dashboard</a>
+            {% else %}
+            <a class="btn btn-outline btn-lg" href="{{ url_for('auth.register') }}">Create free account</a>
+            {% endif %}
+        </div>
+
+        <div class="hero-stats reveal">
+            <div class="hero-stat card">
+                <span class="stat-icon" style="--ic:#6366f1">⚡</span>
+                <div><strong class="count" data-count="{{ avg_wpm }}" data-decimals="1">0</strong><span class="stat-label">Avg WPM</span></div>
+            </div>
+            <div class="hero-stat card">
+                <span class="stat-icon" style="--ic:#22c55e">📝</span>
+                <div><strong class="count" data-count="{{ total_tests }}">0</strong><span class="stat-label">Tests taken</span></div>
+            </div>
+            <div class="hero-stat card">
+                <span class="stat-icon" style="--ic:#f59e0b">👩‍🎓</span>
+                <div><strong class="count" data-count="{{ total_players }}">0</strong><span class="stat-label">Students</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container section">
+    <div class="section-head reveal">
+        <h2>Why you'll love it</h2>
+        <p>Everything you need to go from hunt-and-peck to keyboard hero.</p>
+    </div>
+    <div class="feature-grid">
+        <div class="feature-card card reveal">
+            <span class="feature-icon" style="--ic:#6366f1">🎮</span>
+            <h3>10 Levels & Ranks</h3>
+            <p>Climb from Beginner to Legend. Every level unlocks harder text — longer, with punctuation, numbers, and real technical content.</p>
+        </div>
+        <div class="feature-card card reveal">
+            <span class="feature-icon" style="--ic:#ec4899">🏁</span>
+            <h3>4 Game Modes</h3>
+            <p>Speed Run for raw WPM, Accuracy Mode for precision, Time Attack for 60-second sprints, and Survival Mode where every typo costs a life.</p>
+        </div>
+        <div class="feature-card card reveal">
+            <span class="feature-icon" style="--ic:#22c55e">🗂️</span>
+            <h3>7 Categories</h3>
+            <p>General, English, Programming, Science, Mathematics, Academic, and Interview — practice typing words you'll actually use.</p>
+        </div>
+        <div class="feature-card card reveal">
+            <span class="feature-icon" style="--ic:#f59e0b">✨</span>
+            <h3>XP & Achievements</h3>
+            <p>Earn XP on every run, level up with animated celebrations, and unlock 8 achievements — from First Test to 100 WPM.</p>
+        </div>
+        <div class="feature-card card reveal">
+            <span class="feature-icon" style="--ic:#0ea5e9">🔥</span>
+            <h3>Daily Challenge</h3>
+            <p>A fresh seeded prompt every day. Complete it for a +50 XP bonus and build a 7-day streak to fire up your rank.</p>
+        </div>
+        <div class="feature-card card reveal">
+            <span class="feature-icon" style="--ic:#8b5cf6">🏆</span>
+            <h3>Weekly Leaderboard</h3>
+            <p>Compete with fellow students for the most XP each week and see your name rise through the ranks.</p>
+        </div>
+    </div>
+</section>
+
+<section class="levels-band">
+    <div class="container section">
+        <div class="section-head reveal">
+            <h2>The Rank Ladder</h2>
+            <p>Start where you are. Each rank demands a little more from your fingers.</p>
+        </div>
+        <div class="rank-strip reveal">
+            {% for name in levels %}
+            <div class="rank-chip-rank">
+                <span class="rank-num">{{ loop.index }}</span>
+                <span class="rank-name">{{ name }}</span>
+            </div>
+            {% if not loop.last %}<span class="rank-arrow">→</span>{% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="container section">
+    <div class="section-head reveal">
+        <h2>How it works</h2>
+        <p>Three simple steps to keyboard mastery.</p>
+    </div>
+    <div class="steps-grid">
+        <div class="step-card card reveal">
+            <span class="step-num">1</span>
+            <h3>Pick your level</h3>
+            <p>Choose from 10 locked levels and a category you want to practice — then hit Play.</p>
+        </div>
+        <div class="step-card card reveal">
+            <span class="step-num">2</span>
+            <h3>Type the passage</h3>
+            <p>Real-time WPM, accuracy, and error tracking with live highlighting and a blinking cursor. Instantly restart or finish anytime.</p>
+        </div>
+        <div class="step-card card reveal">
+            <span class="step-num">3</span>
+            <h3>Earn XP & level up</h3>
+            <p>Watch your rank climb, unlock achievements, and climb the weekly leaderboard.</p>
+        </div>
+    </div>
+</section>
+
+{% if top_weekly %}
+<section class="container section leaderboard-section">
+    <div class="section-head reveal">
+        <h2>This week's top typists</h2>
+        <p>Most XP earned in the last 7 days.</p>
+    </div>
+    <div class="card leaderboard-card reveal">
+        <ol class="leaderboard-list">
+            {% for row in top_weekly %}
+            <li class="leaderboard-row {% if current_user.is_authenticated and current_user.username == row.username %}is-me{% endif %}">
+                <span class="lb-medal">{{ ["🥇","🥈","🥉"][loop.index0] if loop.index <= 3 else loop.index }}</span>
+                <span class="lb-name">{{ row.username }}{% if current_user.is_authenticated and current_user.username == row.username %} <em>(you)</em>{% endif %}</span>
+                <span class="lb-xp"><strong>{{ row.xp }}</strong> XP</span>
+            </li>
+            {% endfor %}
+        </ol>
+    </div>
+</section>
+{% endif %}
+
+<section class="cta-band">
+    <div class="container cta-inner">
+        <h2 class="reveal">Ready to put your fingers to work?</h2>
+        <p class="reveal">Join TypeQuest and start earning your first XP in under a minute.</p>
+        <a class="btn btn-primary btn-lg reveal" href="{{ url_for('main.play') }}">Start Typing now →</a>
+    </div>
+</section>
+{% endblock content %}

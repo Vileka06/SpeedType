@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Log in · TypeQuest{% endblock %}
+{% block main_class %}auth-page{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+    <div class="auth-blob" aria-hidden="true"></div>
+    <div class="auth-card card reveal">
+        <div class="auth-head">
+            <span class="brand-mark brand-mark-lg">⚡</span>
+            <h1>Welcome back</h1>
+            <p>Log in to keep your streak alive.</p>
+        </div>
+        <form method="post" class="form" novalidate>
+            <label class="field">
+                <span>Username or email</span>
+                <input type="text" name="identifier" value="{{ request.form.get('identifier','') }}" placeholder="cosmic_typer" required autofocus autocomplete="username">
+            </label>
+            <label class="field">
+                <span>Password</span>
+                <input type="password" name="password" placeholder="••••••••" required autocomplete="current-password">
+            </label>
+            <button type="submit" class="btn btn-primary btn-block">Log in</button>
+        </form>
+        <p class="auth-alt">New to TypeQuest? <a href="{{ url_for('auth.register') }}">Create an account</a></p>
+        <a class="auth-back" href="{{ url_for('main.index') }}">← Back to home</a>
+    </div>
+</div>
+{% endblock content %}
