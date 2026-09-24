@@ -1,133 +1,93 @@
-# ⚡ TypeQuest — Gamified Typing Speed Trainer for Students
+# ⌨️ SpeedType — Gamified Typing Trainer
 
-TypeQuest turns typing practice into a game. Students improve **WPM, accuracy and typing
-skills** by climbing a 10-rank ladder (Beginner → Legend) across 7 categories and 4 game
-modes — with XP, achievements, daily challenges, streaks and a weekly leaderboard to keep
-them coming back.
-
-Built with **Python Flask, HTML/CSS/JavaScript, SQLite and SQLAlchemy** (with Flask-Login
-for authentication).
-
----
+**SpeedType** is a game-style typing practice platform designed to make improving typing speed and accuracy more engaging. Users progress through levels, earn XP, unlock achievements, complete challenges, and track performance.
 
 ## ✨ Features
 
-| Area | Details |
-| --- | --- |
-| **Typing game** | Real-time per-character highlighting (correct / incorrect / cursor), live WPM · accuracy · errors · timer · progress bar, restart & finish, automatic completion |
-| **Rank ladder** | 1 Beginner → 2 Easy → 3 Normal → 4 Medium → 5 Hard → 6 Advanced → 7 Expert → 8 Master → 9 Elite → 10 Legend. Higher levels use longer text, punctuation, numbers and technical content. Levels lock until the previous one is completed. |
-| **Game modes** | 🏁 Speed Run · 🎯 Accuracy Mode · ⏱️ Time Attack (60s) · 💀 Survival Mode (5 lives) · 📅 Daily Challenge |
-| **Categories** | General · English · Programming · Science · Mathematics · Academic · Interview |
-| **Gamification** | XP scoring, level-up animations, 8 achievements, daily challenge (+50 XP bonus), daily streak, weekly leaderboard |
-| **Achievements** | 🚀 First Test · 💨 50 WPM · ⚡ 75 WPM · 🌟 100 WPM · 🎯 Perfect Accuracy · 🔥 7-Day Streak · 📚 10 Tests · 👑 Level 10 |
-| **Dashboard** | Level, XP, best/average WPM, accuracy, tests completed, streak, WPM & accuracy progress charts, recent tests, weekly leaderboard |
-| **Authentication** | Register / login / logout, password hashing (Werkzeug), Flask-Login, protected dashboard |
-| **Design** | Clean, modern, premium & responsive. Subtle gradients, glowing cards, smooth animations, dark/light mode, distraction-free typing screen |
+- ⚡ Real-time WPM, accuracy, errors, timer and progress tracking
+- 🏆 10-rank progression from Beginner to Legend
+- 🎮 Speed Run, Accuracy, Time Attack, Survival and Daily Challenge modes
+- 📚 General, English, Programming, Science, Mathematics, Academic and Interview categories
+- ⭐ XP, achievements, level-ups and weekly leaderboard
+- 📊 Personal dashboard with performance history and charts
+- 🔐 Authentication with Flask-Login and password hashing
+- 🌙 Responsive dark/light interface with animations
 
----
+## 🛠️ Tech Stack
 
-## 📁 Project structure
+**Backend:** Python, Flask, SQLAlchemy  
+**Frontend:** HTML, CSS, JavaScript  
+**Database:** SQLite  
+**Authentication:** Flask-Login, Werkzeug
+
+## 🏗️ Application Flow
 
 ```text
-typequest/
-├── app.py                  # App factory + entry point (python app.py)
-├── config.py               # Configuration constants
-├── requirements.txt
-├── README.md
-├── models/
-│   └── __init__.py         # User, TypingTest, Achievement, UserAchievement
-├── routes/
-│   ├── __init__.py         # Blueprint definitions
-│   ├── auth.py             # Register / login / logout
-│   ├── main.py             # Home, play, dashboard
-│   └── api.py              # /api/texts, /api/results
-├── templates/
-│   ├── base.html
-│   ├── index.html
-│   ├── login.html
-│   ├── register.html
-│   ├── play.html
-│   └── dashboard.html
-├── static/
-│   ├── css/style.css
-│   └── js/app.js
-└── database/
-    ├── seed.py             # Table creation + achievement seeding
-    ├── texts.py            # Typing passage pools (7 categories × 10 levels)
-    └── typequest.db        # SQLite database (created on first run)
+Choose Level + Mode + Category
+            ↓
+       Typing Challenge
+            ↓
+   WPM + Accuracy + Errors
+            ↓
+       XP + Achievements
+            ↓
+      Progress Dashboard
 ```
 
----
-
-## 🚀 Setup & run
+## 🚀 Getting Started
 
 ```bash
-python -m venv venv
+git clone https://github.com/Vileka06/SpeedType.git
+cd SpeedType
+python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 python app.py
 ```
 
-Then open **http://127.0.0.1:5000/** in your browser.
+Open `http://127.0.0.1:5000/` in your browser.
 
-> On Windows, activate with `venv\Scripts\activate` instead.
+## 🎮 How to Play
 
-### Optional environment variables
+1. Register or continue as a guest.
+2. Select a level, category and game mode.
+3. Type the displayed passage as accurately and quickly as possible.
+4. Finish the challenge to receive WPM, accuracy, XP and achievement results.
+5. Track progress and rankings from the dashboard.
 
-- `SECRET_KEY` — set a real secret in production.
-- `DATABASE_URL` — override the SQLite path (e.g. `sqlite:////absolute/path.db`).
+## 🧮 Scoring
 
----
+XP combines typing speed, accuracy, completion bonuses, Survival Mode bonuses and the Daily Challenge bonus. Higher XP unlocks new ranks and levels.
 
-## 🎮 How to play
-
-1. **Sign up / log in** so results are saved and XP is earned (guests can still play).
-2. On the **Play** page pick a **level**, **mode** and **category**, then click the text or press any key.
-3. Type the passage. Correct characters turn green, mistakes turn pink, and a blinking caret follows you.
-   - `Tab` → restart with a new passage
-   - `Esc` → finish early
-   - `Backspace` → fix a typo (Survival mode refunds your life!)
-4. Finish to see your **WPM, accuracy, errors and time**, plus XP gained and any achievements or level-ups.
-5. Track your progress, streak and weekly rank on the **Dashboard**.
-
-### Scoring
-
-```
-XP  = 10 (base)
-    + WPM × 3
-    + accuracy bonus   (+25 ≥ 98% · +12 ≥ 90% · +3 otherwise)
-    + 20  if the passage was completed
-    + 10  bonus for Survival Mode
-    + 50  bonus for completing today's Daily Challenge (once per day)
-```
-
-Completing passages raises your total XP, which unlocks higher levels and new ranks.
-
----
-
-## 🗄️ Database schema
+## 📁 Project Structure
 
 ```text
-User(id, username, email, password_hash, xp, level, streak, last_active, created_at)
-TypingTest(id, user_id, mode, category, level, wpm, accuracy, errors, duration,
-           xp_earned, completed, created_at)
-Achievement(id, name, description, icon)
-UserAchievement(id, user_id, achievement_id, unlocked_at)   -- unique(user_id, achievement_id)
+SpeedType/
+├── app.py
+├── config.py
+├── models/
+├── routes/
+├── templates/
+├── static/
+├── database/
+├── requirements.txt
+└── README.md
 ```
 
-The database is created and achievements are seeded automatically on first run.
+## 💡 What This Project Demonstrates
 
----
+- Real-time browser interaction with JavaScript
+- Backend API design with Flask
+- Authentication and protected routes
+- Persistent user progress with SQLAlchemy
+- Gamification and achievement systems
+- Data visualization and performance tracking
 
-## 🧰 Tech notes
+## 📌 Future Improvements
 
-- **Typing engine** runs entirely on the client (`static/js/app.js`) for zero-lag feedback; WPM is
-  computed from correct characters (`(correct/5) / minutes`), accuracy from `correct / typed`.
-- Results are posted to `/api/results` only once per finished run (no reloads, no double saves).
-- The server validates result payloads, computes XP/level/achievements, and is the source of truth.
-- Dark/light theme is stored in `localStorage` and respects the OS preference by default.
+- Multiplayer typing competitions
+- Custom user-generated passages
+- More competitive ranking modes
+- Public player profiles and performance sharing
 
-## Licensing / disclaimer
-
-Built as an original game-style identity (no Monkeytype assets or design copied). Fonts are the
-system font stack so the app runs fully offline.
+**Built with Python + Flask + JavaScript.**
